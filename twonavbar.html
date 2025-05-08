@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <title>Sidebar Menu</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+      }
+
+      .sidebar {
+        width: 250px;
+        background: linear-gradient(135deg, #343a40, #1f1f1f);
+        color: #fff;
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        padding-top: 20px;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+      }
+
+      h3 {
+        text-align: center;
+        margin-bottom: 20px;
+        text-shadow: 3px 3px red;
+        font-size: 40px;
+      }
+
+      .sidebar ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .sidebar ul li {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .sidebar ul li a {
+        display: block;
+        padding: 15px 20px;
+        color: #fff;
+        text-decoration: none;
+        font-size: 16px;
+        transition: background 0.3s ease;
+      }
+
+      .sidebar ul li a i {
+        margin-right: 10px;
+      }
+
+      .sidebar ul li a:hover {
+        background: #495057;
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="sidebar">
+      <h3>📃 Reports</h3>
+      <hr />
+      <ul>
+        <li>
+          <a href="intable.html"><i class="fas fa-box"></i> <b>Stock In</b></a>
+        </li>
+        <li>
+          <a href="stockout-table.html"
+            ><i class="fas fa-warehouse"></i> <b>Stock Out</b></a
+          >
+        </li>
+        <li>
+          <a href="stockin.html"
+            ><i class="fas fa-file-alt"></i> Stock In Report</a
+          >
+        </li>
+        <li>
+          <a href="stockout2.html"
+            ><i class="fas fa-file-export"></i> Stock Out Report</a
+          >
+        </li>
+        <li>
+          <a href="#"><i class="fas fa-chart-line"></i> All Reports</a>
+        </li>
+      </ul>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stock In Form</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: Arial, sans-serif;
+        background: lightgray;
+        display: flex;
+        height: 100vh;
+      }
+      .main-content {
+        margin-left: 230px;
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      form {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        width: 400px;
+        animation: slideIn 0.5s ease-in-out;
+      }
+      @keyframes slideIn {
+        from {
+          transform: translateY(-50px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+      .form-group {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+      label {
+        width: 40%;
+        font-weight: bold;
+      }
+      input,
+      select {
+        width: 55%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        transition: 0.3s ease;
+      }
+      input:focus,
+      select:focus {
+        border-color: darkblue;
+        outline: none;
+      }
+      .time {
+        text-align: center;
+        font-size: 1rem;
+        margin-bottom: 15px;
+        color: #333;
+        font-weight: bold;
+      }
+      button {
+        width: 100%;
+        padding: 10px;
+        background-color: darkblue;
+        border: none;
+        color: white;
+        font-size: 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+      }
+      button:hover {
+        background-color: navy;
+      }
+      h2 {
+        text-align: center;
+        position: relative;
+        top: -10px;
+        text-shadow: 2px 3px red;
+        color: black;
+        font-size: 43px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="navbar2"></div>
+
+    <div class="main-content">
+      <form id="stockForm">
+        <div class="time" id="liveTime"></div>
+        <h2>Stock In</h2>
+
+        <div class="form-group">
+          <label for="seal">Seal No:</label>
+          <input type="text" id="seal" required />
+        </div>
+
+        <div class="form-group">
+          <label for="item">Item Name:</label>
+          <input type="text" id="item" required />
+        </div>
+
+        <div class="form-group">
+          <label for="flavour">Flavour:</label>
+          <select id="flavour" required>
+            <option value="">Select</option>
+            <option>Lemon</option>
+            <option>Apple</option>
+            <option>Babypowder</option>
+            <option>Coffee</option>
+            <option>Lavender</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="qty">Quantity:</label>
+          <input type="number" id="qty" required />
+        </div>
+
+        <div class="form-group">
+          <label for="weight">Weight:</label>
+          <select id="weight" required>
+            <option value="">Select</option>
+            <option>5L</option>
+            <option>10L</option>
+            <option>25L</option>
+          </select>
+        </div>
+
+        <button type="submit">Stock In</button>
+      </form>
+    </div>
+
+    <script>
+      const liveTime = document.getElementById("liveTime");
+      function updateTime() {
+        const now = new Date();
+        liveTime.textContent = now.toLocaleString();
+      }
+      setInterval(updateTime, 1000);
+      updateTime();
+
+      const form = document.getElementById("stockForm");
+
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const seal = document.getElementById("seal").value.trim();
+        const item = document.getElementById("item").value.trim();
+        const flavour = document.getElementById("flavour").value;
+        const qty = parseInt(document.getElementById("qty").value);
+        const weight = document.getElementById("weight").value;
+        const time = new Date().toLocaleString();
+
+        if (!seal || !item || !flavour || !qty || !weight) {
+          alert("Please fill in all fields.");
+          return;
+        }
+
+        let stockInData = JSON.parse(localStorage.getItem("stockInData")) || [];
+
+        // Check for duplicate seal number
+        const duplicate = stockInData.some((entry) => entry.seal === seal);
+        if (duplicate) {
+          alert(
+            "This seal number already exists. Please enter a unique seal number."
+          );
+          return;
+        }
+
+        // Save to stockInData
+        const newEntry = { seal, item, flavour, qty, weight, time };
+        stockInData.push(newEntry);
+        localStorage.setItem("stockInData", JSON.stringify(stockInData));
+
+        // Update Main Table (mainStockData)
+        let mainData = JSON.parse(localStorage.getItem("mainStockData")) || [];
+        const index = mainData.findIndex(
+          (entry) =>
+            entry.item === item &&
+            entry.flavour === flavour &&
+            entry.weight === weight
+        );
+
+        if (index !== -1) {
+          mainData[index].qty = parseInt(mainData[index].qty) + qty;
+        } else {
+          mainData.push({ item, flavour, weight, qty });
+        }
+
+        localStorage.setItem("mainStockData", JSON.stringify(mainData));
+
+        form.reset();
+
+        // Redirect to Stock In Table page
+        window.location.href = "intable.html"; // Make sure this file exists
+      });
+
+      // Load Navbar
+      fetch("onavbar.html")
+        .then((res) => res.text())
+        .then((data) => {
+          document.getElementById("navbar2").innerHTML = data;
+        });
+    </script>
+  </body>
+</html>

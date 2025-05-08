@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Main Table</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        background: #f4f4f4;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      th,
+      td {
+        border: 1px solid #ccc;
+        padding: 10px;
+        text-align: center;
+      }
+      thead {
+        background: purple;
+        color: white;
+      }
+      h2 {
+        text-shadow: 2px 3px red;
+        font-size: 36px;
+        text-align: center;
+      }
+      td {
+        background-color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Main Table</h2>
+    <table id="mainTable">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Flavour</th>
+          <th>Qty</th>
+          <th>Weight</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <script>
+      function parseQty(qty) {
+        if (!qty) return 0;
+        qty = qty.toString().trim();
+        const match = qty.match(/^(\d+)/);
+        return match ? parseInt(match[1], 13) : 0;
+      }
+
+      function normalize(str) {
+        return str ? str.trim().toLowerCase() : "";
+      }
+
+      function loadMainTable() {
+        const mainTableBody = document.querySelector("#mainTable tbody");
+
+        const stockInData =
+          JSON.parse(localStorage.getItem("stockInData")) || [];
+        const stockOutData =
+          JSON.parse(localStorage.getItem("stockOutData")) || [];
+
+        const summaryMap = {};
+
+        // Step 1: Stock In — accumulate quantities
+        stockInData.forEach((entry) => {
+          const item = normalize(entry.item);
+          const flavour = normalize(entry.flavour);
+          const weight = normalize(entry.weight);
+          const key = `${item}|${flavour}|${weight}`;
+          const qty = parseQty(entry.qty);
+
+          if (!summaryMap[key]) {
+            summaryMap[key] = {
+              item: entry.item.trim(),
+              flavour: entry.flavour.trim(),
+              qty: 0,
+              weight: entry.weight.trim(),
+            };
+          }
+
+          summaryMap[key].qty += qty;
+        });
+
+        // Step 2: Stock Out — subtract correctly
+        stockOutData.forEach((entry) => {
+          const item = normalize(entry.item);
+          const flavour = normalize(entry.flavour);
+          const weight = normalize(entry.weight);
+          let qtyToRemove = parseQty(entry.qty);
+          let remainingQty = qtyToRemove;
+
+          // Check for matching keys
+          const matchingKeys = Object.keys(summaryMap).filter((key) => {
+            const [kItem, kFlavour, kWeight] = key.split("|");
+            return kItem === item && kFlavour === flavour && kWeight === weight;
+          });
+
+          matchingKeys.forEach((key) => {
+            if (remainingQty > 0 && summaryMap[key]) {
+              let availableQty = summaryMap[key].qty;
+              if (availableQty <= remainingQty) {
+                remainingQty -= availableQty;
+                summaryMap[key].qty = 0;
+              } else {
+                summaryMap[key].qty -= remainingQty;
+                remainingQty = 0;
+              }
+            }
+          });
+        });
+
+        // Step 3: Render Main Table with correct quantities
+        mainTableBody.innerHTML = "";
+
+        Object.values(summaryMap).forEach((entry) => {
+          if (entry.qty <= 0) return;
+
+          const row = document.createElement("tr");
+
+          switch (entry.flavour.toLowerCase()) {
+            case "lemon":
+              row.style.background = "#fffacd";
+              break;
+            case "coffee":
+              row.style.background = "#e0cfc1";
+              break;
+            case "lavender":
+              row.style.background = "#e6e6fa";
+              break;
+            default:
+              row.style.background = "#ffffff";
+          }
+
+          row.innerHTML = `
+            <td>${entry.item}</td>
+            <td>${entry.flavour}</td>
+            <td>${entry.qty}</td>
+            <td>${entry.weight}</td>
+          `;
+
+          mainTableBody.appendChild(row);
+        });
+      }
+
+      window.onload = loadMainTable;
+    </script>
+  </body>
+</html>
